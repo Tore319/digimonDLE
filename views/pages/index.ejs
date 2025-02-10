@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+</head>
+<body>
+    <header>
+        <h1>DigimonDLE</h1>
+    </header>
+    <main>
+        <p>Adivina el Digimon de hoy</p>
+        <form action="/digimon/buscar" method="post">
+            <input type="text" id="nombre" name="nombre">
+            <input type="submit">
+            <input type="hidden" value="<%= digimon.name %>" id="digimon" name="digimon">
+            <input type="hidden" value="<%= respuesta %>" id="respuesta" name="respuesta">
+        </form>
+        <div id="container">
+            <% if(respuesta) {%>
+                <p><%= respuesta[0] %></p>
+            <% }%>
+        </div>
+    </main>
+</body>
+</html>
+
+<!--<img src="<%= digimon.images[0].href %>" alt="digimon">-->
