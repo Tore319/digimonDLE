@@ -4,10 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio</title>
+    <style>
+        .respuesta{
+            margin-top: 20px;
+            display: inline-flex;
+        }
+
+        .respuesta div{
+            margin-right: 20px;
+            width: 125px;
+            height: 125px;
+        }
+
+        .respuesta div.digitrue{
+            background-color: green;
+        }
+
+        .respuesta div.digifalse{
+            background-color: red;
+        }
+
+        .respuesta div img{
+            width: 125px;
+            height: 125px;
+        }
+
+        .respuesta div h3{
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
     <header>
-        <h1>DigimonDLE</h1>
+        <a href="/digimon/"><h1>DigimonDLE</h1></a>
     </header>
     <main>
         <p>Adivina el Digimon de hoy</p>
@@ -16,10 +46,28 @@
             <input type="submit">
         </form>
         <div id="container">
-            
+            <% if(respuestas){ %>
+                <% for(respuesta of respuestas) { %>
+                    <div class="respuesta">
+                        <div>
+                            <img src="<%= respuesta[0].img %>" alt="digimon">
+                        </div>
+                        <div class="digi<%= respuesta[0].xAntibody %>">
+                            <h3>X Antibody</h3>
+                        </div>
+                        <div class="digi<%= respuesta[0].level %>">
+                            <h3>Nivel</h3>
+                        </div>
+                        <div class="digi<%= respuesta[0].type %>">
+                            <h3>Tipo</h3>
+                        </div>
+                        <div class="digi<%= respuesta[0].atributo %>">
+                            <h3>Atributo</h3>
+                        </div>
+                    </div>
+                <% } %>
+            <% } %>
         </div>
     </main>
 </body>
 </html>
-
-<!--<img src="<%= digimon.images[0].href %>" alt="digimon">-->

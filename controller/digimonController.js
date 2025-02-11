@@ -9,6 +9,8 @@ class digimonController{
     async index(req, res){
         if(!session.digimon){
             diario()
+        }else{
+            res.render('pages/index', {respuestas: session.respuestas})
         }
 
         function diario(){
@@ -21,13 +23,14 @@ class digimonController{
             })
             .then(response => {
                 try{
-                    let respuesta = [];
+                    console.log(response)
+                    let respuestas = [];
                     let data = response
-                    console.log('Inicio ' + data.name);
+                    console.log('Inicio ' + data.name + ', Nivel ' + data.levels[0].level + ', Tipo ' + data.types[0].type);
                     session.digimon = data
-                    session.respuesta = respuesta;
+                    session.respuestas = respuestas;
 
-                    res.render('pages/index', {digimon: data})
+                    res.render('pages/index', {respuestas: session.respuestas})
                 }catch(e){
                     console.log(e.message);
                     res.status(500).send(e);
@@ -47,19 +50,63 @@ class digimonController{
             .then(response => {
                 if(response.ok){
                     return response.json();
+                }else{
+                    console.log('Digimon no encontrado');
                 }
             })
             .then(response => {
-                //console.log(response.name)
-                // console.log(response.name);
-                // console.log(digimon.name);
-                // if(response.name == digimon.name){
-                //     respuesta.push(true)
-                // }else{
-                //     respuesta.push(false)
-                // }
+                //console.log(response)
+                let digimon2 = response;
+                if(digimon2.name == session.digimon.name){
+                    session.respuestas.push(true)
+                }else{
+                    let respuesta = [];
+                    let xAntibody = '';
+                    let level = '';
+                    let atributo = '';
+                    let type = '';
+                    let img = digimon2.images[0].href;
+                    
+                    console.log(digimon2.xAntibody);
+                    if(digimon2.xAntibody != session.digimon.xAntibody){
+                        xAntibody = false;
+                    }else{
+                        xAntibody = true;
+                    }
 
-                res.redirect( '/digimon/');
+                    console.log(digimon2.levels[0].level);
+                    if(session.digimon.levels[0]){
+                        if(digimon2.levels[0].level != session.digimon.levels[0].level){
+                            level = false;
+                        }else{
+                            level = true;
+                        }
+                    }
+
+                    console.log(digimon2.types[0].type);
+                    if(session.digimon.types[0]){
+                        if(digimon2.types[0].type == session.digimon.types[0].type){
+                            type = true;
+                        }else{
+                            type = false
+                        }
+                    }
+
+                    if(session.digimon.attributes[0]){
+                        if(digimon2.attributes[0].attribute == session.digimon.attributes[0].attribute){
+                            atributo = true;
+                        }else{
+                            atributo = false
+                        }
+                    }
+
+                    respuesta.push({img: img, xAntibody: xAntibody, level: level, type: type, atributo: atributo});
+
+                    console.log(respuesta);
+
+                    session.respuestas.push(respuesta);
+                }
+                res.render('pages/index', {respuestas: session.respuestas})
             })
         }catch(e){
             res.status(500).send(e);
