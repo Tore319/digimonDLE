@@ -1,5 +1,6 @@
 import { response } from "express";
 import session from 'express-session';
+import digimonModel from "../model/digimonModel.js";
 
 class digimonController{
     constructor(){
@@ -10,12 +11,18 @@ class digimonController{
         if(!session.digimon){
             diario()
         }else{
-            res.render('pages/index', {respuestas: session.respuestas})
+            res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons})
         }
 
-        function diario(){
-            let random = Math.floor(Math.random() * 1460);
-            fetch(`https://digi-api.com/api/v1/digimon/${random}`)
+        async function diario(){
+            const digimons = await digimonModel.getAll();
+            session.digimons = digimons
+            let random = Math.floor(Math.random() * 90);
+
+            const data = digimons[random];
+            console.log(data);
+
+            fetch(`https://digi-api.com/api/v1/digimon/${data.nombre}`)
             .then(response => {
                 if(response.ok){
                     return response.json();
@@ -23,14 +30,13 @@ class digimonController{
             })
             .then(response => {
                 try{
-                    console.log(response)
+                    console.log(response.name)
                     let respuestas = [];
                     let data = response
-                    console.log('Inicio ' + data.name + ', Nivel ' + data.levels[0].level + ', Tipo ' + data.types[0].type);
                     session.digimon = data
                     session.respuestas = respuestas;
 
-                    res.render('pages/index', {respuestas: session.respuestas})
+                    res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons})
                 }catch(e){
                     console.log(e.message);
                     res.status(500).send(e);
@@ -67,37 +73,29 @@ class digimonController{
                     let type = '';
                     let img = digimon2.images[0].href;
                     
-                    console.log(digimon2.xAntibody);
+
                     if(digimon2.xAntibody != session.digimon.xAntibody){
                         xAntibody = false;
                     }else{
                         xAntibody = true;
                     }
 
-                    console.log(digimon2.levels[0].level);
-                    if(session.digimon.levels[0]){
-                        if(digimon2.levels[0].level != session.digimon.levels[0].level){
-                            level = false;
-                        }else{
-                            level = true;
-                        }
+                    if(digimon2.levels[0].level != session.digimon.levels[0].level){
+                        level = false;
+                    }else{
+                        level = true;
                     }
 
-                    console.log(digimon2.types[0].type);
-                    if(session.digimon.types[0]){
-                        if(digimon2.types[0].type == session.digimon.types[0].type){
-                            type = true;
-                        }else{
-                            type = false
-                        }
+                    if(digimon2.types[0].type == session.digimon.types[0].type){
+                        type = true;
+                    }else{
+                        type = false
                     }
 
-                    if(session.digimon.attributes[0]){
-                        if(digimon2.attributes[0].attribute == session.digimon.attributes[0].attribute){
-                            atributo = true;
-                        }else{
-                            atributo = false
-                        }
+                    if(digimon2.attributes[0].attribute == session.digimon.attributes[0].attribute){
+                        atributo = true;
+                    }else{
+                        atributo = false
                     }
 
                     respuesta.push({img: img, xAntibody: xAntibody, level: level, type: type, atributo: atributo});
@@ -106,8 +104,46 @@ class digimonController{
 
                     session.respuestas.push(respuesta);
                 }
-                res.render('pages/index', {respuestas: session.respuestas})
+                res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons})
             })
+        }catch(e){
+            res.status(500).send(e);
+        }
+    }
+
+    async create(req, res){
+        try{
+            for(let i = 1; i < 100; i++){
+                await new Promise(r => setTimeout(r, 1000));
+                fetch(`https://digi-api.com/api/v1/digimon/${i}`)
+                .then(response => {
+                    if(response.ok){
+                        return response.json();
+                    }else{
+                        console.log('Error al recibir los datos');
+                    }
+                })
+                .then(todos => {
+                    meter(todos);
+                })
+            }
+
+            async function meter(todos) {
+                if(todos.types.length > 0 && todos.attributes.length > 0 && todos.levels.length > 0){
+                    console.log(todos.name);
+                    await digimonModel.create(todos.name);
+                }
+            }
+        }catch(e){
+            res.status(500).send(e)
+        }
+    }
+
+    async getAll(req, res){
+        try{
+            const data = await digimonModel.getAll();
+            
+            res.status(200).json(data);
         }catch(e){
             res.status(500).send(e);
         }

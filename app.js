@@ -3,6 +3,7 @@ import express, { response } from "express";
 import bodyParser from "body-parser";
 import digimonRoute from "./route/digimonRoute.js";
 import session from 'express-session';
+import dbClient from "./config/dbClient.js";
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -25,4 +26,7 @@ try{
     console.log(e);
 }
 
-// https://digimon-api.vercel.app/api/digimon
+process.on('SIGINT', async() => {
+    dbClient.disconnect();
+    process.exit(0);
+});
