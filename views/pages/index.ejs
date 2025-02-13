@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,28 @@
             text-align: center;
         }
 
+        #myUL {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #myUL li{
+            border: 1px solid #000000;
+            margin-top: -1px;
+            background-color: #f6f6f6;
+            padding: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            color: black;
+            display: none;
+            width: 20%;
+        }
+
+        #myUL li a:hover:not(.header) {
+            background-color: #eee;
+        }
+
     </style>
 </head>
 <body>
@@ -43,12 +65,12 @@
         <p>Adivina el Digimon de hoy</p>
         <form action="/digimon/buscar" method="post">
             <input type="text" id="nombre" name="nombre">
-            <input type="submit">
             <ul id="myUL">
-                <%= for(digimon of digimons) { %>
+                <% for(digimon of digimons) { %>
                     <li><%= digimon.nombre %></li>
                 <% }%>
             </ul>
+            <input type="submit">
         </form>
         <div id="container">
             <% if(respuestas){ %>
@@ -73,27 +95,48 @@
                 <% } %>
             <% } %>
         </div>
+        <div id="victory">
+            <% if(victory){ %>
+                <h1>Has ganado</h1>
+                <input type="hidden" value="<%=victory%>" id="victory">
+            <% } %>
+        </div>
     </main>
 </body>
 <script>
+    const input = document.getElementById('nombre');
+    const ul = document.getElementById("myUL"); 
+
+    input.addEventListener('input', myFunction);
+
     function myFunction() {
-      // Declare variables
-      var input, filter, ul, li, a, i, txtValue;
-      input = document.getElementById('nombre');
-      filter = input.value.toUpperCase();
-      ul = document.getElementById("myUL");
-      li = ul.getElementsByTagName('li');
+        console.log('lista');
+        var filter, li, a, i, txtValue;
+        filter = input.value.toUpperCase();
+        li = ul.getElementsByTagName('li');
+        ul.style.display = "block";
+        let cont = 0;
     
-      // Loop through all list items, and hide those who don't match the search query
-      for (i = 0; i < li.length; i++) {
-        a = li[i].getElementsByTagName("a")[0];
-        txtValue = a.textContent || a.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          li[i].style.display = "";
-        } else {
-          li[i].style.display = "none";
+        for (i = 0; i < li.length; i++) {
+            txtValue = li[i].textContent;
+            if (filter == '') {
+                li[i].style.display = 'none';
+            }else if(txtValue.toUpperCase().indexOf(filter) > -1){
+                if(cont < 10){
+                    li[i].style.display = "block";
+                    cont++;
+                }
+            }else {
+                li[i].style.display = "none";
+            }
+
+            li[i].addEventListener("click", function(e) {
+                let value = e.target.textContent;
+                input.value = value;
+                e.target.style.display = 'none';
+                e.target.innerHTML = '';
+            });
         }
-      }
     }
 </script>
 </html>
