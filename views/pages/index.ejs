@@ -33,6 +33,11 @@
             text-align: center;
         }
 
+        .respuesta div p{
+            text-align: center;
+            font-weight: bold;
+        }
+
         #myUL {
             list-style-type: none;
             padding: 0;
@@ -59,11 +64,11 @@
 </head>
 <body>
     <header>
-        <a href="/digimon/"><h1>DigimonDLE</h1></a>
+        <a href="/digimon"><h1>DigimonDLE</h1></a>
     </header>
     <main>
-        <p>Adivina el Digimon de hoy</p>
-        <form action="/digimon/buscar" method="post">
+        <form action="/digimon/buscar" method="post" id="form">
+            <p>Adivina el Digimon de hoy</p>
             <input type="text" id="nombre" name="nombre">
             <ul id="myUL">
                 <% for(digimon of digimons) { %>
@@ -79,17 +84,21 @@
                         <div>
                             <img src="<%= respuesta[0].img %>" alt="digimon">
                         </div>
-                        <div class="digi<%= respuesta[0].xAntibody %>">
+                        <div class="digi<%= respuesta[0].xAntibody[0] %>">
                             <h3>X Antibody</h3>
+                            <p><%= respuesta[0].xAntibody[1] %></p>
                         </div>
-                        <div class="digi<%= respuesta[0].level %>">
+                        <div class="digi<%= respuesta[0].level[0] %>">
                             <h3>Nivel</h3>
+                            <p><%=respuesta[0].level[1]%></p>
                         </div>
-                        <div class="digi<%= respuesta[0].type %>">
+                        <div class="digi<%= respuesta[0].type[0] %>">
                             <h3>Tipo</h3>
+                            <p><%=respuesta[0].type[1]%></p>
                         </div>
-                        <div class="digi<%= respuesta[0].atributo %>">
+                        <div class="digi<%= respuesta[0].atributo[0] %>">
                             <h3>Atributo</h3>
+                            <p><%=respuesta[0].atributo[1]%></p>
                         </div>
                     </div>
                 <% } %>
@@ -98,7 +107,10 @@
         <div id="victory">
             <% if(victory){ %>
                 <h1>Has ganado</h1>
-                <input type="hidden" value="<%=victory%>" id="victory">
+                <input type="hidden" value="<%=victory%>" id="victoria">
+                <form action="/digimon/reset" method="get">
+                    <input type="submit" value="Reiniciar" name="reset" id="reset">
+                </form>
             <% } %>
         </div>
     </main>
@@ -131,12 +143,28 @@
             }
 
             li[i].addEventListener("click", function(e) {
+                console.log('Cambio input ' + e.target.textContent);
                 let value = e.target.textContent;
-                input.value = value;
-                e.target.style.display = 'none';
-                e.target.innerHTML = '';
+
+                if(value) {
+                    input.value = value;
+                    e.target.style.display = 'none';
+                    e.target.innerHTML = '';
+                }
             });
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Comprobar victoria')
+        const victory = document.getElementById('victoria').value;
+        console.log(victory)
+        const form = document.getElementById('form');
+        
+        if(victory == 'true'){
+            console.log('Has ganado');
+            form.style.display = 'none';
+        }
+    })
 </script>
 </html>

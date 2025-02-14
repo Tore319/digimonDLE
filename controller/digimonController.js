@@ -54,9 +54,10 @@ class digimonController{
         if(session.victory != true){
             try{
                 const { nombre } = req.body;
-    
-                console.log('Nombre form: ' + nombre);
-                console.log('Sessions ' + session.digimon.name, session.respuesta);
+
+                if(!nombre || nombre == ''){
+                    return res.redirect('/digimon');
+                }
     
                 fetch(`https://digi-api.com/api/v1/digimon/${nombre}`)
                 .then(response => {
@@ -81,7 +82,7 @@ class digimonController{
                         type = true;
                         atributo = true;
     
-                        respuesta.push({img: img, xAntibody: xAntibody, level: level, type: type, atributo: atributo});
+                        respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
     
                         session.respuestas.push(respuesta);
     
@@ -113,21 +114,27 @@ class digimonController{
                             atributo = false
                         }
     
-                        respuesta.push({img: img, xAntibody: xAntibody, level: level, type: type, atributo: atributo});
+                        respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
     
                         console.log(respuesta);
     
                         session.respuestas.push(respuesta);
     
-                        res.redirect('/digimon/');
+                        res.redirect('/digimon');
                     }
                 })
             }catch(e){
                 res.status(500).send(e);
             }
         }else{
-            res.redirect('/digimon/');
+            res.redirect('/digimon');
         }
+    }
+
+    async reset(req, res){
+        session.digimon = '';
+
+        res.redirect('/digimon');
     }
 
     async create(req, res){
