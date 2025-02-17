@@ -8,9 +8,10 @@ class digimonController{
     }
 
     async index(req, res){
+        // Comprueba si la varibale de sesion digimon esta inicializada
         if(!session.digimon){
-            diario()
-        }else{
+            diario() // Ejecuta la funcion para conseguir el digimon aleatorio
+        }else{ // Si esta inicializada manda a la view
             res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons, victory: session.victory});
         }
 
@@ -53,12 +54,31 @@ class digimonController{
     async buscar(req, res){
         if(session.victory != true){
             try{
+                if(!session.nombres){
+                    let nombres = [''];
+                    session.nombres = nombres;
+                }
+
+                let comp = false;
                 const { nombre } = req.body;
 
-                if(!nombre || nombre == ''){
-                    return res.redirect('/digimon');
-                }
-    
+                console.log(nombre);
+
+                session.nombres.forEach(nom => {
+                    if(!nombre || nombre == '' || nom == nombre){
+                        comp = true
+                        return res.redirect('/digimon');
+                    }else{
+                        session.nombres.push(nombre);
+                    }
+                    session.digimons.forEach(digi => {  
+                        if(digi.nombre == nombre){
+                            session.digimons = session.digimons.filter(digi => digi.nombre !== nombre);
+                        }
+                    });
+                });
+                
+                if(!comp){
                 fetch(`https://digi-api.com/api/v1/digimon/${nombre}`)
                 .then(response => {
                     if(response.ok){
@@ -116,13 +136,14 @@ class digimonController{
     
                         respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
     
-                        console.log(respuesta);
+                        // console.log(respuesta);
     
                         session.respuestas.push(respuesta);
     
                         res.redirect('/digimon');
                     }
                 })
+                }
             }catch(e){
                 res.status(500).send(e);
             }
