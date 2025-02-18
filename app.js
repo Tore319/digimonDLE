@@ -9,7 +9,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-app.use('/digimon', digimonRoute);
+app.use('/', digimonRoute);
 
 app.use(session({
     secret: '1234',

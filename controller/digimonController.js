@@ -16,12 +16,13 @@ class digimonController{
         }
 
         async function diario(){
-            const digimons = await digimonModel.getAll();
-            session.digimons = digimons
-            let random = Math.floor(Math.random() * 90);
+            const digimons = await digimonModel.getAll(); // Recoje todos los digimons
+            session.digimons = digimons // Instancia la variable de session
+            let random = Math.floor(Math.random() * 90); 
 
-            const data = digimons[random];
+            const data = digimons[random]; // Coge un digimon aleatorio
 
+            // Busca en la API el digimon
             fetch(`https://digi-api.com/api/v1/digimon/${data.nombre}`)
             .then(response => {
                 if(response.ok){
@@ -36,12 +37,14 @@ class digimonController{
                     console.log(response.types[0].type)
                     console.log(response.attributes[0].attribute)
 
+                    // Instancia las distintas variables de session
                     let respuestas = [];
                     let data = response
                     session.digimon = data
                     session.respuestas = respuestas;
                     session.victory = false;
 
+                    // Renderiza la pagina de inicio
                     res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons, victory: session.victory});
                 }catch(e){
                     console.log(e.message);
@@ -51,10 +54,12 @@ class digimonController{
         }
     }
 
+    // Funcion para buscar el digimon y compararlo con el random
     async buscar(req, res){
-        if(session.victory != true){
+        if(session.victory != true){ // Comprueba que no se haya ganado
             try{
-                if(!session.nombres){
+                // Comprueba la variable de session nombres 
+                if(!session.nombres){ 
                     let nombres = [''];
                     session.nombres = nombres;
                 }
@@ -65,12 +70,14 @@ class digimonController{
                 console.log(nombre);
 
                 session.nombres.forEach(nom => {
+                    // Compruebo que el nombre no este vacio o este repetido
                     if(!nombre || nombre == '' || nom == nombre){
                         comp = true
                         return res.redirect('/digimon');
                     }else{
                         session.nombres.push(nombre);
                     }
+                    // Filtro los digimons que ya se han buscado
                     session.digimons.forEach(digi => {  
                         if(digi.nombre == nombre){
                             session.digimons = session.digimons.filter(digi => digi.nombre !== nombre);
@@ -79,78 +86,79 @@ class digimonController{
                 });
                 
                 if(!comp){
-                fetch(`https://digi-api.com/api/v1/digimon/${nombre}`)
-                .then(response => {
-                    if(response.ok){
-                        return response.json();
-                    }else{
-                        console.log('Digimon no encontrado');
-                    }
-                })
-                .then(response => {
-                    let digimon2 = response;
-                    let respuesta = [];
-                    let xAntibody = '';
-                    let level = '';
-                    let atributo = '';
-                    let type = '';
-                    let img = digimon2.images[0].href;
-    
-                    if(digimon2.name == session.digimon.name){
-                        xAntibody = true;
-                        level = true;
-                        type = true;
-                        atributo = true;
-    
-                        respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
-    
-                        session.respuestas.push(respuesta);
-    
-                        session.victory = true;
-    
-                        res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons, victory: session.victory})
-                    }else{
-                        if(digimon2.xAntibody == session.digimon.xAntibody){
+                    // Busco el digimon
+                    fetch(`https://digi-api.com/api/v1/digimon/${nombre}`)
+                    .then(response => {
+                        if(response.ok){
+                            return response.json();
+                        }else{
+                            console.log('Digimon no encontrado');
+                        }
+                    })
+                    .then(response => {
+                        let digimon2 = response;
+                        let respuesta = [];
+                        let xAntibody = '';
+                        let level = '';
+                        let atributo = '';
+                        let type = '';
+                        let img = digimon2.images[0].href;
+                        
+                        if(digimon2.name == session.digimon.name){ // Si adivina el digimon
                             xAntibody = true;
-                        }else{
-                            xAntibody = false;
-                        }
-    
-                        if(digimon2.levels[0].level == session.digimon.levels[0].level){
                             level = true;
-                        }else{
-                            level = false;
-                        }
-    
-                        if(digimon2.types[0].type == session.digimon.types[0].type){
                             type = true;
-                        }else{
-                            type = false
-                        }
-    
-                        if(digimon2.attributes[0].attribute == session.digimon.attributes[0].attribute){
                             atributo = true;
-                        }else{
-                            atributo = false
+        
+                            respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
+        
+                            session.respuestas.push(respuesta);
+        
+                            session.victory = true;
+        
+                            res.render('pages/index', {respuestas: session.respuestas, digimons: session.digimons, victory: session.victory})
+                        }else{ // Si no lo adivina
+                            if(digimon2.xAntibody == session.digimon.xAntibody){
+                                xAntibody = true;
+                            }else{
+                                xAntibody = false;
+                            }
+        
+                            if(digimon2.levels[0].level == session.digimon.levels[0].level){
+                                level = true;
+                            }else{
+                                level = false;
+                            }
+        
+                            if(digimon2.types[0].type == session.digimon.types[0].type){
+                                type = true;
+                            }else{
+                                type = false
+                            }
+        
+                            if(digimon2.attributes[0].attribute == session.digimon.attributes[0].attribute){
+                                atributo = true;
+                            }else{
+                                atributo = false
+                            }
+        
+                            respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
+        
+                            // console.log(respuesta);
+        
+                            session.respuestas.push(respuesta);
+        
+                            res.redirect('/digimon');
                         }
-    
-                        respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
-    
-                        // console.log(respuesta);
-    
-                        session.respuestas.push(respuesta);
-    
-                        res.redirect('/digimon');
+                    })
                     }
-                })
+                }catch(e){
+                    res.status(500).send(e);
                 }
-            }catch(e){
-                res.status(500).send(e);
+            }else{
+                res.redirect('/digimon');
             }
-        }else{
-            res.redirect('/digimon');
         }
-    }
 
     async reset(req, res){
         session.digimon = '';
