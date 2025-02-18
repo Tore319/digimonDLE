@@ -163,7 +163,7 @@
         </div>
         <form action="/buscar" method="post" id="form">
             <p>Adivina el Digimon de hoy!</p>
-            <input type="text" id="nombre" name="nombre">
+            <input type="text" id="nombre" name="nombre" autocomplete="off">
             <ul id="myUL">
                 <% for(digimon of digimons) { %>
                     <li><%= digimon.nombre %></li>
