@@ -162,6 +162,7 @@ class digimonController{
 
     async reset(req, res){
         session.digimon = '';
+        session.nombres = [''];
 
         res.redirect('/');
     }
