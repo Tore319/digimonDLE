@@ -73,7 +73,7 @@ class digimonController{
                     // Compruebo que el nombre no este vacio o este repetido
                     if(!nombre || nombre == '' || nom == nombre){
                         comp = true
-                        return res.redirect('/digimon');
+                        return res.redirect('/');
                     }else{
                         session.nombres.push(nombre);
                     }
@@ -148,7 +148,7 @@ class digimonController{
         
                             session.respuestas.push(respuesta);
         
-                            res.redirect('/digimon');
+                            res.redirect('/');
                         }
                     })
                     }
@@ -156,14 +156,14 @@ class digimonController{
                     res.status(500).send(e);
                 }
             }else{
-                res.redirect('/digimon');
+                res.redirect('/');
             }
         }
 
     async reset(req, res){
         session.digimon = '';
 
-        res.redirect('/digimon');
+        res.redirect('/');
     }
 
     async create(req, res){

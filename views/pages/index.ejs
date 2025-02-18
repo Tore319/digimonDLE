@@ -156,12 +156,12 @@
             <% if(victory){ %>
                 <h1>Has ganado!</h1>
                 <input type="hidden" value="<%=victory%>" id="victoria">
-                <form action="/digimon/reset" method="get">
+                <form action="/reset" method="get">
                     <input type="submit" value="Reiniciar" name="reset" id="reset">
                 </form>
             <% } %>
         </div>
-        <form action="/digimon/buscar" method="post" id="form">
+        <form action="/buscar" method="post" id="form">
             <p>Adivina el Digimon de hoy!</p>
             <input type="text" id="nombre" name="nombre">
             <ul id="myUL">
