@@ -144,8 +144,6 @@ class digimonController{
         
                             respuesta.push({img: img, xAntibody: [xAntibody, digimon2.xAntibody], level: [level, digimon2.levels[0].level], type: [type, digimon2.types[0].type], atributo: [atributo, digimon2.attributes[0].attribute]});
         
-                            // console.log(respuesta);
-        
                             session.respuestas.push(respuesta);
         
                             res.redirect('/');
@@ -160,17 +158,19 @@ class digimonController{
             }
         }
 
-    async reset(req, res){
+    async reset(req, res){ // Funcion para resetear el digimon aleatorio
         session.digimon = '';
         session.nombres = [''];
 
         res.redirect('/');
     }
 
+    // Esta funcion sirve para almacenar los digimons en la BBDD
     async create(req, res){
         try{
+            // Bucle para conseguir Digimons
             for(let i = 1; i < 100; i++){
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 1000)); // Cada 1s hace la llamada a la API para que no bloque la conexion
                 fetch(`https://digi-api.com/api/v1/digimon/${i}`)
                 .then(response => {
                     if(response.ok){
@@ -180,28 +180,20 @@ class digimonController{
                     }
                 })
                 .then(todos => {
-                    meter(todos);
+                    meter(todos); // Funcion para filtrar los digimons
                 })
             }
 
             async function meter(todos) {
+                // Comprueba que el digimon tiene los atributos
                 if(todos.types.length > 0 && todos.attributes.length > 0 && todos.levels.length > 0){
                     console.log(todos.name);
+                    // Lo guarda en la BBDD
                     await digimonModel.create(todos.name);
                 }
             }
         }catch(e){
             res.status(500).send(e)
-        }
-    }
-
-    async getAll(req, res){
-        try{
-            const data = await digimonModel.getAll();
-            
-            res.status(200).json(data);
-        }catch(e){
-            res.status(500).send(e);
         }
     }
 }
