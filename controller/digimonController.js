@@ -65,27 +65,29 @@ class digimonController{
                 }
 
                 let comp = false;
+                let aux = false;
                 const { nombre } = req.body;
 
                 console.log(nombre);
 
                 session.nombres.forEach(nom => {
                     // Compruebo que el nombre no este vacio o este repetido
-                    if(!nombre || nombre == '' || nom == nombre){
+                    if(!nombre || nombre == '' || nom.toUpperCase() == nombre.toUpperCase()){
                         comp = true
-                        return res.redirect('/');
-                    }else{
-                        session.nombres.push(nombre);
+                        console.log("Comp: " + comp);
                     }
                     // Filtro los digimons que ya se han buscado
                     session.digimons.forEach(digi => {  
-                        if(digi.nombre == nombre){
-                            session.digimons = session.digimons.filter(digi => digi.nombre !== nombre);
+                        if(digi.nombre.toUpperCase() == nombre.toUpperCase()){
+                            session.digimons = session.digimons.filter(digi => digi.nombre.toUpperCase() !== nombre.toUpperCase());
+                            aux = true;
                         }
                     });
                 });
                 
-                if(!comp){
+                if(!comp && aux){
+                    session.nombres.push(nombre);
+                    console.log(session.nombres);
                     // Busco el digimon
                     fetch(`https://digi-api.com/api/v1/digimon/${nombre}`)
                     .then(response => {
@@ -149,7 +151,10 @@ class digimonController{
                             res.redirect('/');
                         }
                     })
-                    }
+                }else{
+                    console.log('error');
+                    res.redirect('/');
+                }
                 }catch(e){
                     res.status(500).send(e);
                 }
